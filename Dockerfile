@@ -59,7 +59,7 @@ RUN set -eux \
 # Install libraries
 RUN set -eux \
     && apt-get install -yq \
-        libgl-dev libgl1-mesa-dev \
+        libgl-dev libgl1-mesa-dev libclang-dev\
         libx11-xcb-dev libfontenc-dev libice-dev libsm-dev libxaw7-dev libxcomposite-dev libxcursor-dev libxdamage-dev libxext-dev \
         libxfixes-dev libxi-dev libxinerama-dev libxkbfile-dev libxmu-dev libxmuu-dev libxpm-dev libxrandr-dev libxrender-dev libxres-dev \
         libxss-dev libxt-dev libxtst-dev libxv-dev libxxf86vm-dev libxcb-glx0-dev libxcb-render0-dev libxcb-render-util0-dev libxcb-xkb-dev \
