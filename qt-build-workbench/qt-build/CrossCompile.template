@@ -1,0 +1,29 @@
+# 复制sysroot-template_qt_arch
+COPY template_qt_sysroot_path /tmp/sysroot-template_qt_arch.tar.gz
+
+# 解压sysroot-template_qt_arch
+RUN set -eux \
+    && mkdir -p /opt/sysroot/template_qt_arch \
+    && tar -zxf /tmp/sysroot-template_qt_arch.tar.gz -C /opt/sysroot/template_qt_arch \
+    && rm -rf /tmp/sysroot-template_qt_arch.tar.gz \
+    && sync \
+    && exit 0
+
+# 复制template_qt_toochain_file_name.cmake
+COPY template_qt_toochain_file_path /opt/toolchains/template_qt_toochain_file_name.cmake
+
+# 交叉编译QT-template_qt_arch
+RUN set -eux \
+    && cd ${QT_BUILD_DIR} \
+    && ${QT_SRC_DIR}/configure -release \
+        -opengl es2 -qt-sqlite -qt-zlib -qt-libjpeg -qt-libpng -qt-freetype -qt-pcre -qt-harfbuzz \
+        -nomake examples -nomake tests \
+        -qt-host-path ${QT_INSTALL_DIR}/amd64 \
+        -prefix ${QT_INSTALL_DIR}/template_qt_arch \
+        -- -DCMAKE_TOOLCHAIN_FILE=/opt/toolchains/template_qt_toochain_file_name.cmake \
+        -DQT_FEATURE_xcb=ON -DFEATURE_xcb_xlib=ON -DQT_FEATURE_xlib=ON \
+    && cmake --build ${QT_BUILD_DIR} --parallel \
+    && cmake --install ${QT_BUILD_DIR} --prefix ${QT_INSTALL_DIR}/template_qt_arch \
+    && rm -rf ${QT_BUILD_DIR}/* \
+    && exit 0
+

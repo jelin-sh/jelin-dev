@@ -1,0 +1,49 @@
+# Dockerfile.template
+FROM jelin-dev/ubuntu22.04
+
+# 设置工作目录
+WORKDIR /root
+
+ENV QT_SRC_DIR=/tmp/qt-src
+ENV QT_BUILD_DIR=/tmp/qt-build
+ENV QT_VERSION=template_qt_version
+ENV QT_INSTALL_DIR=/opt/qt/${QT_VERSION}
+
+# 安装QT编译依赖
+RUN set -eux \
+    && apt-get update \
+    && apt-get upgrade -yq \
+    && apt-get install -yq \
+        libclang-dev libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev \
+        libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev \
+        libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev \
+        libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev \
+        libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libatspi2.0-dev libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev \
+    && apt-get -yq clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && exit 0
+
+# 创建工作目录
+RUN set -eux \
+    && mkdir -p ${QT_SRC_DIR} ${QT_BUILD_DIR} ${QT_INSTALL_DIR}\
+    && exit 0
+
+# 复制QT源码
+COPY template_qt_src_path /tmp/qt-everywhere-src-${QT_VERSION}.tar.xz
+
+# 解压QT源码
+RUN set -eux \
+    && tar -xvf /tmp/qt-everywhere-src-${QT_VERSION}.tar.xz -C ${QT_SRC_DIR} --strip-components=1 \
+    && exit 0
+
+# 编译QT HOST
+RUN set -eux \
+    && cd ${QT_BUILD_DIR} \
+    && ${QT_SRC_DIR}/configure -release \
+        -qt-sqlite -qt-zlib -qt-libjpeg -qt-libpng -qt-freetype -qt-pcre -qt-harfbuzz \
+        -prefix ${QT_INSTALL_DIR}/amd64 \
+    && cmake --build ${QT_BUILD_DIR} --parallel \
+    && cmake --install ${QT_BUILD_DIR} --prefix ${QT_INSTALL_DIR}/amd64 \
+    && rm -rf ${QT_BUILD_DIR}/* \
+    && exit 0
+
